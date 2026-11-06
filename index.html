@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Prajapati Saurabh | 3D Tech Portfolio</title>
+  <!-- Three.js CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <style>
+    :root {
+      --bg: #030806;
+      --glass-bg: rgba(16, 185, 129, 0.08);
+      --glass-bg-hover: rgba(16, 185, 129, 0.15);
+      --glass-border: rgba(52, 211, 153, 0.28);
+      --glass-border-hover: rgba(52, 211, 153, 0.6);
+      --primary: #10b981;
+      --primary-light: #34d399;
+      --aws-gold: #f59e0b;
+      --text-main: #ffffff;
+      --text-sub: #cbd5e1;
+      --text-muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text-main);
+      overflow-x: hidden;
+      min-height: 100vh;
+      position: relative;
+    }
+
+    /* Fixed Background Three.js Canvas */
+    #canvas3d {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* Foreground Content */
+    .app-wrapper {
+      position: relative;
+      z-index: 10;
+      min-height: 100vh;
+    }
+
+    /* Header Navigation */
+    header {
+      position: sticky;
+      top: 0;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      background: rgba(3, 8, 6, 0.75);
+      border-bottom: 1px solid var(--glass-border);
+      padding: 1.1rem 2.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 50;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-weight: 800;
+      font-size: 1.2rem;
+      color: #ffffff;
+      text-decoration: none;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-dot {
+      width: 10px;
+      height: 10px;
+      background: var(--primary-light);
+      border-radius: 50%;
+      box-shadow: 0 0 12px var(--primary-light);
+    }
+
+    nav {
+      display: flex;
+      align-items: center;
+      gap: 1.8rem;
+    }
+
+    nav a {
+      color: var(--text-sub);
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight: 600;
+      transition: color 0.2s;
+    }
+
+    nav a:hover {
+      color: var(--primary-light);
+    }
+
+    .nav-btn {
+      background: rgba(16, 185, 129, 0.2);
+      border: 1px solid var(--glass-border);
+      color: #ffffff !important;
+      padding: 0.45rem 1.1rem;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      transition: all 0.25s;
+    }
+
+    .nav-btn:hover {
+      background: var(--primary);
+      border-color: var(--primary-light);
+      box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+    }
+
+    /* Main Container */
+    .container {
+      max-width: 1050px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem 10rem;
+    }
+
+    /* Fixed Visibility: No hiding or broken scroll opacity */
+    .content-card {
+      opacity: 1 !important;
+      visibility: visible !important;
+      transform: none !important;
+      transition: transform 0.25s ease, background 0.25s ease, border-color 0.25s ease;
+    }
+
+    /* Hero Card */
+    .hero-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1px solid var(--glass-border);
+      border-radius: 26px;
+      padding: 4rem 3rem;
+      text-align: center;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4), inset 0 0 20px rgba(52, 211, 153, 0.05);
+      margin-top: 1rem;
+      margin-bottom: 5rem;
+    }
+
+    .badge {
+      display: inline-block;
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--primary-light);
+      border: 1px solid var(--glass-border);
+      padding: 0.4rem 1.2rem;
+      border-radius: 50px;
+      font-size: 0.82rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      margin-bottom: 1.5rem;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      font-size: clamp(2.3rem, 5.5vw, 3.8rem);
+      font-weight: 900;
+      line-height: 1.18;
+      letter-spacing: -0.03em;
+      color: #ffffff;
+      margin-bottom: 1.4rem;
+      text-shadow: 0 2px 20px rgba(0, 0, 0, 0.6);
+    }
+
+    .hero-p {
+      color: var(--text-sub);
+      font-size: 1.15rem;
+      line-height: 1.8;
+      max-width: 760px;
+      margin: 0 auto;
+      font-weight: 500;
+    }
+
+    .hero-stats {
+      display: flex;
+      justify-content: center;
+      gap: 3.5rem;
+      margin-top: 2.8rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--glass-border);
+      flex-wrap: wrap;
+    }
+
+    .stat-item h3 {
+      font-size: 2.3rem;
+      font-weight: 900;
+      color: var(--primary-light);
+      line-height: 1;
+      text-shadow: 0 0 15px rgba(52, 211, 153, 0.3);
+    }
+
+    .stat-item p {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-top: 0.4rem;
+    }
+
+    /* Section Styling */
+    section {
+      margin-bottom: 5.5rem;
+    }
+
+    .section-head {
+      margin-bottom: 2rem;
+    }
+
+    .section-head span {
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: var(--primary-light);
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+    }
+
+    .section-head h2 {
+      font-size: 2.2rem;
+      font-weight: 900;
+      color: #ffffff;
+      margin-top: 0.3rem;
+    }
+
+    /* Timeline Section */
+    .timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .timeline-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-radius: 20px;
+      padding: 1.8rem 2.2rem;
+      border: 1px solid var(--glass-border);
+      display: flex;
+      gap: 1.5rem;
+      align-items: flex-start;
+    }
+
+    .timeline-card:hover {
+      transform: translateY(-3px);
+      background: var(--glass-bg-hover);
+      border-color: var(--glass-border-hover);
+    }
+
+    .timeline-num {
+      background: rgba(16, 185, 129, 0.2);
+      border: 1px solid var(--glass-border);
+      color: var(--primary-light);
+      font-weight: 900;
+      font-size: 1.15rem;
+      width: 46px;
+      height: 46px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .timeline-content h4 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 0.4rem;
+    }
+
+    .timeline-content p {
+      color: var(--text-sub);
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    /* Skills Grid */
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 1.2rem;
+    }
+
+    .skill-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      padding: 1.3rem 1rem;
+      text-align: center;
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: #ffffff;
+    }
+
+    .skill-card:hover {
+      transform: translateY(-4px);
+      background: var(--glass-bg-hover);
+      border-color: var(--primary-light);
+      box-shadow: 0 0 20px rgba(52, 211, 153, 0.25);
+    }
+
+    /* Projects Grid */
+    .projects-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.8rem;
+    }
+
+    @media (min-width: 768px) {
+      .projects-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .project-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--glass-border);
+      border-radius: 22px;
+      padding: 2rem 1.8rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .project-card:hover {
+      transform: translateY(-5px);
+      background: var(--glass-bg-hover);
+      border-color: var(--primary-light);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+    }
+
+    .project-card h3 {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 0.7rem;
+    }
+
+    .project-card p {
+      color: var(--text-sub);
+      font-size: 0.92rem;
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1.4rem;
+    }
+
+    .tag {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #e2e8f0;
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 0.3rem 0.7rem;
+      border-radius: 6px;
+    }
+
+    .rank-tag {
+      background: rgba(245, 158, 11, 0.18);
+      border-color: rgba(245, 158, 11, 0.4);
+      color: var(--aws-gold);
+      font-weight: 700;
+    }
+
+    .project-card a {
+      color: var(--primary-light);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      transition: gap 0.2s;
+    }
+
+    .project-card a:hover {
+      gap: 0.5rem;
+    }
+
+    /* Creative Feature: Floating Action Trigger */
+    .vending-trigger {
+      position: fixed;
+      bottom: 25px;
+      right: 25px;
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 50px;
+      padding: 1rem 1.6rem;
+      font-size: 0.95rem;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4);
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      z-index: 100;
+      animation: bounce 2.2s infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-7px); }
+    }
+
+    /* Modal Backdrop */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(3, 8, 6, 0.85);
+      backdrop-filter: blur(12px);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    .vending-modal {
+      background: #091510;
+      border: 2px solid var(--primary-light);
+      border-radius: 24px;
+      width: 100%;
+      max-width: 440px;
+      padding: 2.2rem;
+      position: relative;
+      text-align: center;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6), 0 0 30px rgba(16, 185, 129, 0.2);
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 15px;
+      right: 18px;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.5rem;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .vending-slot {
+      min-height: 120px;
+      background: rgba(3, 8, 6, 0.6);
+      border: 2px dashed var(--glass-border);
+      border-radius: 14px;
+      margin: 1.5rem 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.2rem;
+    }
+
+    .fact-card {
+      color: #34d399;
+      font-size: 1rem;
+      font-weight: 700;
+      line-height: 1.5;
+      animation: cardDrop 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes cardDrop {
+      0% { transform: translateY(-15px) scale(0.9); opacity: 0; }
+      100% { transform: translateY(0) scale(1); opacity: 1; }
+    }
+
+    .insert-coin-btn {
+      width: 100%;
+      background: var(--primary);
+      color: #ffffff;
+      border: none;
+      border-radius: 12px;
+      padding: 0.9rem;
+      font-size: 1rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .insert-coin-btn:hover {
+      background: var(--primary-light);
+      box-shadow: 0 0 20px rgba(52, 211, 153, 0.4);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Three.js Canvas -->
+  <canvas id="canvas3d"></canvas>
+
+  <div class="app-wrapper">
+    <!-- Header -->
+    <header>
+      <a href="#" class="brand">
+        <span class="brand-dot"></span>
+        Prajapati Saurabh
+      </a>
+      <nav>
+        <a href="#about">About</a>
+        <a href="#milestones">Journey</a>
+        <a href="#skills">Superpowers</a>
+        <a href="#projects">Projects</a>
+        <a href="https://github.com/saurabh1637-glitch" target="_blank" class="nav-btn">GitHub ↗</a>
+      </nav>
+    </header>
+
+    <div class="container">
+      
+      <!-- Section 1: Hero / About Me -->
+      <section id="about" class="hero-card content-card">
+        <span class="badge">AWS Student Builder Edition</span>
+        <h1>Engineering High-Velocity Full-Stack & Cloud Systems</h1>
+        <p class="hero-p">
+          Hi, I'm <strong>Prajapati Saurabh</strong> — a Computer Science & Artificial Intelligence student with a relentless learning velocity. Right from my first year of college, I have embraced high-pressure hackathons, competing against hundreds of senior builders to convert complex engineering problems into clean, production-grade applications.
+        </p>
+
+        <div class="hero-stats">
+          <div class="stat-item">
+            <h3>4+</h3>
+            <p>Hackathons Tackled</p>
+          </div>
+          <div class="stat-item">
+            <h3>#11</h3>
+            <p>Rank out of 300+ Devs</p>
+          </div>
+          <div class="stat-item">
+            <h3>97%</h3>
+            <p>Class 10 Self-Study Topper</p>
+          </div>
+          <div class="stat-item">
+            <h3>24h</h3>
+            <p>Rapid MVP Sprint Speed</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 2: Hackathon Journey & Milestones -->
+      <section id="milestones">
+        <div class="section-head">
+          <span>Proven Track Record</span>
+          <h2>Hackathon Sprint Milestones</h2>
+        </div>
+
+        <div class="timeline">
+          <div class="timeline-card content-card">
+            <div class="timeline-num">01</div>
+            <div class="timeline-content">
+              <h4>Internshala Portal Hackathon (Rank 11 / 300+)</h4>
+              <p>Designed and published a high-speed student opportunity directory under extreme time constraints, outranking hundreds of developers with clean modular code and seamless client-side filtering.</p>
+            </div>
+          </div>
+
+          <div class="timeline-card content-card">
+            <div class="timeline-num">02</div>
+            <div class="timeline-content">
+              <h4>Odoo x FLUX Lucknow Hackathon</h4>
+              <p>Engineered Brightloop Software—a full-stack recurring billing platform with MySQL relational pipelines, automated invoice management, and complete end-to-end transaction architecture.</p>
+            </div>
+          </div>
+
+          <div class="timeline-card content-card">
+            <div class="timeline-num">03</div>
+            <div class="timeline-content">
+              <h4>Autonomous Escrow Architecture (FairShare AI)</h4>
+              <p>Built a smart financial ledger engine with automated debt-simplification algorithms, real-time balances, and state persistence hosted via managed cloud containers.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 3: Tech Superpowers -->
+      <section id="skills">
+        <div class="section-head">
+          <span>Core Capabilities</span>
+          <h2>Tech Superpowers</h2>
+        </div>
+
+        <div class="skills-grid">
+          <div class="skill-card content-card">Java</div>
+          <div class="skill-card content-card">Python</div>
+          <div class="skill-card content-card">JavaScript / Node</div>
+          <div class="skill-card content-card">React.js</div>
+          <div class="skill-card content-card">Three.js / 3D</div>
+          <div class="skill-card content-card">AWS Amplify</div>
+          <div class="skill-card content-card">MySQL</div>
+          <div class="skill-card content-card">Rapid Prototyping</div>
+        </div>
+      </section>
+
+      <!-- Section 4: Featured Projects -->
+      <section id="projects">
+        <div class="section-head">
+          <span>Deployments</span>
+          <h2>Featured Projects</h2>
+        </div>
+
+        <div class="projects-grid">
+          
+          <div class="project-card content-card">
+            <div>
+              <h3>Internshala Hub</h3>
+              <p>Opportunity directory built during my college debut sprint where I secured <strong>Rank 11 out of 300+ developers</strong>.</p>
+              <div class="tags">
+                <span class="tag rank-tag">🏆 Rank 11 / 300</span>
+                <span class="tag">JavaScript</span>
+                <span class="tag">GitHub</span>
+              </div>
+            </div>
+            <a href="https://github.com/saurabh1637-glitch" target="_blank">View Repository &rarr;</a>
+          </div>
+
+          <div class="project-card content-card">
+            <div>
+              <h3>Brightloop Software</h3>
+              <p>Full-stack subscription management and recurring billing platform engineered and pitched for the Odoo x FLUX Lucknow Hackathon.</p>
+              <div class="tags">
+                <span class="tag">Odoo Hackathon</span>
+                <span class="tag">Node.js</span>
+                <span class="tag">MySQL</span>
+              </div>
+            </div>
+            <a href="https://github.com/saurabh1637-glitch" target="_blank">View Repository &rarr;</a>
+          </div>
+
+          <div class="project-card content-card">
+            <div>
+              <h3>FairShare AI</h3>
+              <p>Autonomous group expense and smart settlement platform featuring live balance tracking, automated splits, and modern UI.</p>
+              <div class="tags">
+                <span class="tag">React</span>
+                <span class="tag">Express</span>
+                <span class="tag">Cloud</span>
+              </div>
+            </div>
+            <a href="https://github.com/saurabh1637-glitch" target="_blank">View Repository &rarr;</a>
+          </div>
+
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- Section 5: Creative Feature (Superpower Vending Machine) -->
+  <button class="vending-trigger" id="vendingTrigger">
+    🎰 Insert Coin: Reveal Secret
+  </button>
+
+  <div class="modal-backdrop" id="modalBackdrop">
+    <div class="vending-modal">
+      <button class="close-btn" id="closeModal">&times;</button>
+      <h3 style="color: var(--primary-light); font-size: 1.4rem; font-weight: 800;">Superpower Vending Machine</h3>
+      <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.3rem;">
+        Click below to dispense a unique behind-the-scenes milestone about me.
+      </p>
+
+      <div class="vending-slot" id="vendingSlot">
+        <span style="color: #64748b; font-size: 0.9rem;">Slot Empty. Insert token below!</span>
+      </div>
+
+      <button class="insert-coin-btn" id="dispenseFact">🪙 Insert Token (Dispense Fact)</button>
+    </div>
+  </div>
+
+  <!-- Three.js Background Engine -->
+  <script>
+    const canvas = document.getElementById("canvas3d");
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x030806, 0.035);
+
+    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+    camera.position.z = 16;
+
+    const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+    scene.add(ambientLight);
+
+    const dirLight1 = new THREE.DirectionalLight(0x34d399, 2.5);
+    dirLight1.position.set(14, 14, 8);
+    scene.add(dirLight1);
+
+    const dirLight2 = new THREE.DirectionalLight(0xf59e0b, 1.8);
+    dirLight2.position.set(-14, -8, -6);
+    scene.add(dirLight2);
+
+    const emeraldClayMat = new THREE.MeshPhysicalMaterial({
+      color: 0x10b981,
+      roughness: 0.3,
+      metalness: 0.1,
+      clearcoat: 0.5,
+      clearcoatRoughness: 0.2
+    });
+
+    const warmGoldMat = new THREE.MeshStandardMaterial({
+      color: 0xf59e0b,
+      roughness: 0.35,
+      metalness: 0.8
+    });
+
+    const softWhiteClay = new THREE.MeshPhysicalMaterial({
+      color: 0xe2e8f0,
+      roughness: 0.25,
+      metalness: 0.05,
+      clearcoat: 0.6
+    });
+
+    const sphere = new THREE.Mesh(new THREE.SphereGeometry(2.4, 64, 64), softWhiteClay);
+    sphere.position.set(8.5, 1, -2);
+    scene.add(sphere);
+
+    const torus = new THREE.Mesh(new THREE.TorusGeometry(2.2, 0.45, 32, 80), warmGoldMat);
+    torus.position.set(-8.5, 3, -3);
+    scene.add(torus);
+
+    const cube = new THREE.Mesh(new THREE.BoxGeometry(2.2, 2.2, 2.2), emeraldClayMat);
+    cube.position.set(7.5, -6, -4);
+    scene.add(cube);
+
+    const smallSphere = new THREE.Mesh(new THREE.SphereGeometry(1.3, 32, 32), emeraldClayMat);
+    smallSphere.position.set(-7.5, -8, -2);
+    scene.add(smallSphere);
+
+    let scrollY = 0;
+    let targetScrollY = 0;
+
+    window.addEventListener("scroll", () => {
+      targetScrollY = window.scrollY;
+    });
+
+    function animate() {
+      requestAnimationFrame(animate);
+
+      scrollY += (targetScrollY - scrollY) * 0.06;
+
+      sphere.position.y = 1 + (scrollY * 0.007);
+      sphere.rotation.y += 0.006;
+      sphere.rotation.x += 0.004;
+
+      torus.position.y = 3 - (scrollY * 0.006);
+      torus.rotation.x += 0.008;
+      torus.rotation.y += 0.005;
+
+      cube.position.y = -6 + (scrollY * 0.008);
+      cube.rotation.x += 0.007;
+      cube.rotation.y += 0.009;
+
+      smallSphere.position.y = -8 + (scrollY * 0.009);
+
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener("resize", () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    // Creative Feature Logic
+    const facts = [
+      "🏆 Hackathon Fighter: Competed in 4 hackathons right from college debut, clinching Rank 11 out of 300 in the Internshala sprint!",
+      "⚡ Quick Learner Velocity: Able to grasp new frameworks, backend stacks, and cloud deployment pipelines in record time to ship MVPs under 24 hours.",
+      "💼 Odoo x FLUX Lucknow: Built and presented Brightloop Software, a full-stack automated recurring billing system.",
+      "🎯 Academic Focus: Self-studied the entire class 10 mathematics syllabus independently and topped school with a 97% score."
+    ];
+
+    const triggerBtn = document.getElementById("vendingTrigger");
+    const modalBackdrop = document.getElementById("modalBackdrop");
+    const closeModal = document.getElementById("closeModal");
+    const dispenseBtn = document.getElementById("dispenseFact");
+    const slot = document.getElementById("vendingSlot");
+
+    triggerBtn.addEventListener("click", () => {
+      modalBackdrop.style.display = "flex";
+    });
+
+    closeModal.addEventListener("click", () => {
+      modalBackdrop.style.display = "none";
+    });
+
+    modalBackdrop.addEventListener("click", (e) => {
+      if (e.target === modalBackdrop) modalBackdrop.style.display = "none";
+    });
+
+    dispenseBtn.addEventListener("click", () => {
+      slot.innerHTML = '<span style="color: var(--primary-light); font-weight: 700;">Dispensing Token... ⚙️</span>';
+      setTimeout(() => {
+        const fact = facts[Math.floor(Math.random() * facts.length)];
+        slot.innerHTML = `<div class="fact-card">${fact}</div>`;
+      }, 350);
+    });
+  </script>
+</body>
+</html>
